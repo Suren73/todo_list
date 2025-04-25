@@ -1,4 +1,4 @@
-import React from 'react';
+import { useDebounce } from '../../hooks';
 import { getFilteredTodos, getSortedTodos } from '../../utils';
 import { TodoItem } from '../TodoItem/TodoItem';
 import styles from './TodoList.module.css';
@@ -15,7 +15,9 @@ export const TodoList = ({
 	handleUpdate,
 	handleDelete,
 }) => {
-	const filteredTodos = getFilteredTodos(todos, searchQuery);
+	const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+	const filteredTodos = getFilteredTodos(todos, debouncedSearchQuery);
 	const sortedAndFilteredTodos = getSortedTodos(filteredTodos, sortByAlphabet);
 
 	return (
