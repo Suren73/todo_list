@@ -14,6 +14,8 @@ export const TodoList = ({
 	setEditingText,
 	handleUpdate,
 	handleDelete,
+	isDeleting,
+	isUpdating,
 }) => {
 	const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
@@ -34,6 +36,8 @@ export const TodoList = ({
 					setEditingText={setEditingText}
 					handleUpdate={handleUpdate}
 					handleDelete={handleDelete}
+					isDeleting={isDeleting}
+					isUpdating={isUpdating}
 				/>
 			))}
 		</ul>

@@ -1,24 +1,24 @@
-import axios from 'axios';
+import { onValue, ref } from 'firebase/database';
 import { useEffect, useState } from 'react';
-import { API_URL } from '../constants';
+import { db } from '../firebase';
+import { objectToArrayWithKeys } from '../utils';
 
 export function useRequestGetTodos() {
+	const [isLoading, setIsLoading] = useState(true);
 	const [todos, setTodos] = useState([]);
-	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
-		setIsLoading(true);
+		const todosDbRef = ref(db, 'todos');
 
-		setTimeout(() => {
-			axios
-				.get(API_URL)
-				.then((response) => {
-					setTodos(response.data);
-				})
-				.catch((error) => console.error('Ошибка:', error))
-				.finally(() => setIsLoading(false));
-		}, 2500);
+		return onValue(todosDbRef, (snapshot) => {
+			const loadedTodos = snapshot.val() || {};
+
+			const arrTodo = objectToArrayWithKeys(loadedTodos);
+
+			setTodos(arrTodo);
+			setIsLoading(false);
+		});
 	}, []);
 
-	return { todos, setTodos, isLoading, setIsLoading };
+	return { todos, isLoading };
 }

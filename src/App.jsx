@@ -16,18 +16,12 @@ function App() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortByAlphabet, setSortByAlphabet] = useState(false);
 
+	const { todos, isLoading } = useRequestGetTodos();
+	const { handleAdd, isCreating } = useRequestAddTodo(newTodo, setNewTodo);
+	const { handleDelete, isDeleting } = useRequestDeleteTodo();
+	const { handleUpdate, isUpdating } = useRequestUpdateTodo(setEditingId);
+
 	const inputRef = useRef(null);
-
-	const { todos, setTodos, isLoading, setIsLoading } = useRequestGetTodos();
-
-	const { handleAdd, isCreating } = useRequestAddTodo(
-		newTodo,
-		setNewTodo,
-		setTodos,
-		setIsLoading,
-	);
-	const handleDelete = useRequestDeleteTodo(setTodos, setIsLoading);
-	const handleUpdate = useRequestUpdateTodo(setTodos, setIsLoading, setEditingId);
 
 	useEffect(() => {
 		if (editingId !== null && inputRef.current) {
@@ -61,6 +55,8 @@ function App() {
 				setEditingText={setEditingText}
 				handleUpdate={handleUpdate}
 				handleDelete={handleDelete}
+				isDeleting={isDeleting}
+				isUpdating={isUpdating}
 			/>
 		</div>
 	);

@@ -1,34 +1,29 @@
-import axios from 'axios';
-import { API_URL } from '../constants';
+import { ref, set } from 'firebase/database';
+import { useState } from 'react';
+import { db } from '../firebase';
 
-export function useRequestUpdateTodo(setTodos, setIsLoading, setEditingId) {
-	function handleUpdate(id, newTitle) {
+export function useRequestUpdateTodo(setEditingId) {
+	const [isUpdating, setIsUpdating] = useState(false);
+
+	function handleUpdate(key, newTitle) {
 		if (!newTitle.trim()) return;
-		const todoId = id;
-		setIsLoading(true);
 
-		setTimeout(() => {
-			axios
-				.patch(`${API_URL}/${todoId}`, {
-					title: newTitle.trim(),
-				})
-				.then((response) => {
-					setTodos((prevTodo) =>
-						prevTodo.map((todo) =>
-							todo.id === response.data.id
-								? { ...todo, title: response.data.title }
-								: todo,
-						),
-					);
-					console.log('Задача обновлена, ответ сервера: ', response.data);
-				})
-				.catch((error) => console.error('Ошибка:', error))
-				.finally(() => {
-					setIsLoading(false);
-					setEditingId(null);
-				});
-		}, 2500);
+		setIsUpdating(true);
+		const todoDbRef = ref(db, `todos/${key}`);
+
+		set(todoDbRef, {
+			title: newTitle.trim(),
+			complete: false,
+		})
+			.then((response) => {
+				console.log('Задача обновлена, ответ сервера:', response);
+			})
+			.catch((error) => console.error('Ошибка:', error))
+			.finally(() => {
+				setIsUpdating(false);
+				setEditingId(null);
+			});
 	}
 
-	return handleUpdate;
+	return { handleUpdate, isUpdating };
 }

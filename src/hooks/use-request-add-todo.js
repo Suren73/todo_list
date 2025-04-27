@@ -1,34 +1,27 @@
-import axios from 'axios';
+import { push, ref } from 'firebase/database';
 import { useState } from 'react';
-import { API_URL } from '../constants';
+import { db } from '../firebase';
 
-export function useRequestAddTodo(newTodo, setNewTodo, setTodos, setIsLoading) {
+export function useRequestAddTodo(newTodo, setNewTodo) {
 	const [isCreating, setIsCreating] = useState(false);
 
 	function handleAdd() {
 		if (!newTodo.trim()) return;
-
 		setIsCreating(true);
-		setIsLoading(true);
 
-		setTimeout(() => {
-			axios
-				.post(API_URL, {
-					title: newTodo.trim(),
-					completed: false,
-				})
-				.then((response) => {
-					setTodos((prevTodo) => [...prevTodo, response.data]);
-					setNewTodo('');
-					console.log('Задача добавлена, ответ сервера: ', response.data);
-				})
-				.catch((error) => console.error('Ошибка:', error))
-				.finally(() => {
-					setIsLoading(false);
-					setIsCreating(false);
-				});
-		}, 2500);
+		const todosDbRef = ref(db, 'todos');
+
+		push(todosDbRef, {
+			title: newTodo.trim(),
+			completed: false,
+		})
+			.then((response) => response.toJSON())
+			.then((data) => {
+				setNewTodo('');
+				console.log('Задача добавлена, ответ сервера:', data);
+			})
+			.catch((error) => console.error('Ошибка:', error))
+			.finally(() => setIsCreating(false));
 	}
-
 	return { handleAdd, isCreating };
 }

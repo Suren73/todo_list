@@ -1,7 +1,6 @@
 import React from 'react';
-import { createHandleCancel, createHandleEdit } from '../../handlers';
+import { createHandleCancel, createHandleEdit, createInputHandler } from '../../handlers';
 import styles from './TodoItem.module.css';
-import { createInputHandler } from '../../handlers';
 
 export const TodoItem = ({
 	id,
@@ -13,6 +12,8 @@ export const TodoItem = ({
 	setEditingText,
 	handleUpdate,
 	handleDelete,
+	isDeleting,
+	isUpdating,
 }) => {
 	const handleCancel = createHandleCancel(setEditingId);
 	const handleEdit = createHandleEdit(setEditingId, setEditingText);
@@ -33,6 +34,7 @@ export const TodoItem = ({
 						onClick={() => {
 							handleUpdate(id, editingText);
 						}}
+						disabled={isUpdating}
 					>
 						Сохранить
 					</button>
@@ -51,7 +53,11 @@ export const TodoItem = ({
 					</button>
 				</>
 			)}
-			<button className={styles.buttonDelete} onClick={() => handleDelete(id)}>
+			<button
+				className={styles.buttonDelete}
+				onClick={() => handleDelete(id)}
+				disabled={isDeleting}
+			>
 				Удалить
 			</button>
 		</li>

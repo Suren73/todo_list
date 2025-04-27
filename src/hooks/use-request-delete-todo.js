@@ -1,24 +1,22 @@
-import axios from 'axios';
-import { API_URL } from '../constants';
+import { ref, remove } from 'firebase/database';
+import { useState } from 'react';
+import { db } from '../firebase';
 
-export function useRequestDeleteTodo(setTodos, setIsLoading) {
-	function handleDelete(id) {
-		setIsLoading(true);
-		const todoId = id;
-		setTimeout(() => {
-			axios
-				.delete(`${API_URL}/${todoId}`)
-				.then((response) => {
-					setTodos((prevTodo) =>
-						[...prevTodo].filter((todo) => todo.id !== response.data.id),
-					);
-					console.log('Задача удалена, ответ сервера: ', response.data);
-				})
-				.catch((error) => console.error('Ошибка:', error))
-				.finally(() => {
-					setIsLoading(false);
-				});
-		}, 2500);
+export function useRequestDeleteTodo() {
+	const [isDeleting, setIsDeleting] = useState(false);
+
+	function handleDelete(key) {
+		setIsDeleting(true);
+
+		const todoDbRef = ref(db, `todos/${key}`);
+
+		remove(todoDbRef)
+			.then((response) => {
+				console.log('Задача удалена, ответ сервера:', response);
+			})
+			.catch((error) => console.log('Ошибка:', error))
+			.finally(() => setIsDeleting(false));
 	}
-	return handleDelete;
+
+	return { handleDelete, isDeleting };
 }
